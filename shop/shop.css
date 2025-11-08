@@ -1,4 +1,4 @@
-/* ===== 基础全局设置 ===== */
+/* ===== general setting ===== */
 body {
   margin: 0;
   padding: 0;
@@ -7,7 +7,7 @@ body {
   color: #8b462b;
 }
 
-/* ===== 弹窗窗口 ===== */
+/* ===== popup window ===== */
 .shop-window {
   position: fixed;
   top: 20px;
@@ -23,7 +23,7 @@ body {
   padding: 15px 20px 20px 20px;
 }
 
-/* ===== 顶部标题栏 ===== */
+/* ===== top header ===== */
 header {
     display: flex;
     justify-content: center;
@@ -99,12 +99,12 @@ header h2 {
 }
 
 
-/* ===== 主体布局 ===== */
+/* ===== overall ===== */
 .content {
     display: flex;
 }
 
-/* ===== 左侧标签栏 ===== */
+/* ===== left side tab bar ===== */
 .sidebar {
     display: flex;
     flex-direction: column;
@@ -143,7 +143,7 @@ header h2 {
 }
 
 
-/* ===== 主面板 ===== */
+/* ===== main panel ===== */
 .main-panel {
   flex: 1;
   background: #dd9763;
@@ -159,7 +159,7 @@ header h2 {
 
 
 
-/* ===== 宠物展示区域 ===== */
+/* ===== Pet display area ===== */
 .pet-display {
   display: flex;
   justify-content: center;
@@ -197,7 +197,7 @@ header h2 {
         inset 0 2px 0 #ae6d43;
 }
 
-/* ===== 价格栏 =====*/
+/* ===== price bar =====*/
 .item-price-bar {
     width: 80px;
     display: flex;
@@ -221,7 +221,7 @@ header h2 {
 }
 
 
-/* ===== 购买按钮 ===== */
+/* ===== buy button ===== */
 .buy-btn {
     color: #f6e3b5;
     background: #9b6542;
