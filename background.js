@@ -1,5 +1,5 @@
-
-setInterval(getAllCurrentTabs, 500)
+setInterval(getCurrentTab, 500)
+setInterval(updateTimer, 1000);
 console.log("if you didn't see this line, the program didn't work oh no")
 
 async function getAllCurrentTabs() {
@@ -31,32 +31,49 @@ async function getCurrentTab() {
     //hence, the second parameter is a function that runs after function finishes with the actual input (1st parameter)
     //we MUST MUST MUST do this because otherwise JS might try return tabs.url BEFORE the query is actually complete
         //lambda inside the function MAKES MAKES MAKES sure that we KNOW what tabs is before returning it
-
-
 }
 
 //= is assignment
 //== loose equality
-async function updateTimer() {
-    const tab = await getCurrentTab();
-    if (!tab || !tab.url) return;
 
-    const url = tab.url;
+// Timer globals
+let totalTime = 0;
+let previousTime = null;
+let timerRunning = false;
+
+// Helper to wrap your callback-style query in a Promise
+function getCurrentTabURL() {
+    return new Promise((resolve) => {
+        let queryOptions = { active: true, lastFocusedWindow: true };
+        chrome.tabs.query(queryOptions, ([tab]) => {
+            if (!tab || !tab.url) {
+                resolve(null);
+                return;
+            }
+            resolve(tab.url);
+        });
+    });
+}
+
+// Timer update function
+async function updateTimer() {
+    const url = await getCurrentTabURL();
+    if (!url) return;
+
     const blockedSites = ["youtube.com", "instagram.com"];
     const isBlocked = blockedSites.some(site => url.includes(site));
 
-    const now = new Date();
-    const currentTime = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
-
+    const now = Date.now();
     if (!previousTime) {
-        previousTime = currentTime;
+        previousTime = now;
+        console.log("no url detected")
         return;
     }
 
-    const delta = currentTime - previousTime;
-    previousTime = currentTime;
+    const delta = (now - previousTime) / 1000; // seconds
+    previousTime = now;
 
-    if(!isBlocked) {
+    if (!isBlocked) {
         totalTime += delta;
         timerRunning = true;
     } else {
@@ -64,9 +81,9 @@ async function updateTimer() {
     }
 
     console.log(`Current tab: ${url}`);
-    console.log(`Total active time: ${totalTime}s`);
+    console.log(`Total active time: ${Math.floor(totalTime)}s`);
     console.log(`Timer running: ${timerRunning}`);
-
 }
 
-setInterval(updateTimer, 1000);
+// Start the timer: run every second
+
