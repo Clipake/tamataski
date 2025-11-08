@@ -1,0 +1,7 @@
+.tamataski_pet {
+    z-index: 999999;
+    position: fixed;
+    bottom: 0px;
+    right: 10px;
+}
+
