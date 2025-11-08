@@ -84,6 +84,3 @@ async function updateTimer() {
     console.log(`Total active time: ${Math.floor(totalTime)}s`);
     console.log(`Timer running: ${timerRunning}`);
 }
-
-// Start the timer: run every second
-
