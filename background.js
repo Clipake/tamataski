@@ -1,12 +1,23 @@
 
-setInterval(getCurrentTab, 500)
+setInterval(getAllCurrentTabs, 500)
 console.log("if you didn't see this line, the program didn't work oh no")
 
+async function getAllCurrentTabs() {
+    let queryOptions = {highlighted: true};
+    // `tab` will either be a `tabs.Tab` instance or `undefined`.
+    let y = ''
+    chrome.tabs.query(queryOptions, (tabs) => {
+        for(const i in tabs){
+            y += tabs.url + "\n"
+        }
+        console.log(y)
+    })
+}
 async function getCurrentTab() {
     let queryOptions = {active: true, lastFocusedWindow: true};
     // `tab` will either be a `tabs.Tab` instance or `undefined`.
     chrome.tabs.query(queryOptions, ([tab]) => {
-        if (!tab) {
+            if (!tab) {
             console.warn('No active tab found. Are you on the console perchance???');
             return;
         }
