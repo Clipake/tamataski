@@ -1,6 +1,7 @@
 {
   "permissions": [
-    "activeTab"
+    "activeTab",
+    "tabs"
   ],
   "background" : {
     "service_worker": "background.js"
