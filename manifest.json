@@ -1,4 +1,16 @@
 {
     "manifest_version": 3,
-    "name": "tamataski"
+    "name": "tamataski",
+    "version": "1.0",
+    "description": "",
+
+
+    "content_scripts": [
+        {
+            "js": ["scripts/pet.js"],
+            "matches": [
+                "*://*/*"
+            ]
+        }
+    ]
 }
