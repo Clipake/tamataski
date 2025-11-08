@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cat Shop</title>
+  <!-- 加载像素字体 -->
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./shop.css" />
+</head>
+
+<body>
+  <div class="shop-window">
+    <header>
+      <h2>Pet Shop</h2>
+      <button class="close-btn" onclick="window.closeShop()">X</button>
+    </header>
+
+    <div class="currency-display">
+        <span class="currency-amount">$ 5,000</span>
+    </div>
+
+    <div class="content">
+      <aside class="sidebar">
+        <button class="tab">🎩</button>
+
+      </aside>
+
+      <main class="main-panel">
+        
+        <div class="pet-display">
+          <button class="arrow left">◀</button>
+          <img src="../assets/smile_0.png" alt="pet" class="pet" />
+          <button class="arrow right">▶</button>
+        </div>
+
+        <div class="item-price-bar">
+            <span class="price-text">$ 50</span>
+        </div>
+
+        <button class="buy-btn">Buy</button>
+
+      </main>
+    </div>
+  </div>
+
+  <script>
+    window.closeShop = function () {
+      parent.postMessage({ action: "closeShop" }, "*");
+    };
+  </script>
+</body>
+</html>
