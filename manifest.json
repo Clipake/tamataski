@@ -1,15 +1,23 @@
 {
-    "permissions": [
-        "activeTab"
-    ],
-    "background" : {
-        "service_worker": "background.js"
-    },
-    "name": "tamataski",
-    "description": "Base Level Extension",
-    "version": "1.0",
-    "manifest_version": 3,
-    "action": {
-        "default_icon": "assets/smile_0.png"
+  "permissions": [
+    "activeTab"
+  ],
+  "background" : {
+    "service_worker": "background.js"
+  },
+  "name": "tamataski",
+  "description": "Base Level Extension",
+  "version": "1.0",
+  "manifest_version": 3,
+  "action": {
+    "default_icon": "assets/smile_0.png"
+  },
+  "content_scripts": [
+    {
+      "js": ["scripts/pet.js"],
+      "matches": [
+        "*://*/*"
+      ]
     }
+  ]
 }
