@@ -1,43 +1,57 @@
+const speed = 5
+
 function renderPet(){
+
     // const cssConnector = document.createElement("link")
     // cssConnector.rel = "stylesheet"
     // cssConnector.href = chrome.runtime.getURL('/assets/test.css')
     // document.head.appendChild(cssConnector)
 
-    const pet = document.createElement('div')
-    pet.className = "tamataski_pet"
+    const container = document.createElement('div')
+    container.className = "tamataski_container"
     
-    document.body.appendChild(pet)
+    document.body.appendChild(container)
 
-    
-    const image_element = document.createElement("img")
-    image_element.src = chrome.runtime.getURL('/assets/smile_0.png')
-    image_element.className = "test_image"
-    pet.appendChild(image_element)
+    const pet = document.createElement("img")
+    pet.src = chrome.runtime.getURL('/assets/smile_0.png')
+    pet.className = "tamataski_pet"
+    container.appendChild(pet)
+
+    const randomNumBetween = function(from, to){
+        const between = to - from
+        return Math.floor(Math.random() * between) - Math.abs(from)
+    }
 
     
     let petPosition = 0
-    const loopContents = async function(){
-        console.log("move element")
-        petPosition -= 100
+
+    const loop = async function(){
+        const spaceLeft = Math.min(15, petPosition-5)
+        const spaceRight = Math.min(15, 95-petPosition)
+        console.log({spaceLeft, spaceRight})
+        
+        const distance = randomNumBetween(-spaceLeft, spaceRight)
+        const movementTime = (Math.abs(distance)/speed)*1000
+        petPosition += distance
+        petPosition = Math.min(Math.max(petPosition, 5),  95)
+        console.log('position: ', petPosition)
+
         const move = [
-            {transform: `translateX(${petPosition}px)`}
+            {transform: `translateX(${petPosition}vw)`}
         ]
         const timing = {
-            duration: 2000,
+            duration: movementTime,
             iterations: 1,
             fill: "forwards"
         }
+        console.log('distance: ', distance)
+
         animation = pet.animate(move, timing);
         await animation.finished;
         animation.commitStyles();
         animation.cancel();
-    }
-
-    const loop = function(){
-        loopContents()
     
-        let timeout = (Math.floor(Math.random() * 5) + 2)*1000
+        let timeout = (Math.floor(Math.random() * 3) + 0)*1000 + movementTime //1-3+movement time seconds
         setTimeout(loop, timeout)
     }
 

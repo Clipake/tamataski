@@ -1,7 +1,7 @@
-.tamataski_pet {
+.tamataski_container {
     z-index: 999999;
     position: fixed;
     bottom: 0px;
-    right: 10px;
+    width: 100%;
 }
 
