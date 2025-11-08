@@ -1,4 +1,15 @@
 {
+    "permissions": [
+        "activeTab"
+    ],
+    "background" : {
+        "service_worker": "background.js"
+    },
+    "name": "tamataski",
+    "description": "Base Level Extension",
+    "version": "1.0",
     "manifest_version": 3,
-    "name": "tamataski"
+    "action": {
+        "default_icon": "assets/smile_0.png"
+    }
 }
