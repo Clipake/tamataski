@@ -37,4 +37,36 @@ async function getCurrentTab() {
 
 //= is assignment
 //== loose equality
-//=== strict equality
+async function updateTimer() {
+    const tab = await getCurrentTab();
+    if (!tab || !tab.url) return;
+
+    const url = tab.url;
+    const blockedSites = ["youtube.com", "instagram.com"];
+    const isBlocked = blockedSites.some(site => url.includes(site));
+
+    const now = new Date();
+    const currentTime = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+
+    if (!previousTime) {
+        previousTime = currentTime;
+        return;
+    }
+
+    const delta = currentTime - previousTime;
+    previousTime = currentTime;
+
+    if(!isBlocked) {
+        totalTime += delta;
+        timerRunning = true;
+    } else {
+        timerRunning = false;
+    }
+
+    console.log(`Current tab: ${url}`);
+    console.log(`Total active time: ${totalTime}s`);
+    console.log(`Timer running: ${timerRunning}`);
+
+}
+
+setInterval(updateTimer, 1000);
