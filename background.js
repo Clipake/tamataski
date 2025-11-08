@@ -1,17 +1,48 @@
-setInterval(getCurrentTab, 500)
+setInterval(getAllCurrentTabs, 500)
 setInterval(updateTimer, 1000);
 console.log("if you didn't see this line, the program didn't work oh no")
-
+/*
 async function getAllCurrentTabs() {
     let queryOptions = {highlighted: true};
     // `tab` will either be a `tabs.Tab` instance or `undefined`.
     let y = ''
     chrome.tabs.query(queryOptions, (tabs) => {
         for(const i in tabs){
-            y += tabs.url + "\n"
+            y += tabs[i].url + "\n"
         }
         console.log(y)
     })
+}
+
+function getCurrentTabURL() {
+    return new Promise((resolve) => {
+        let queryOptions = {active: true};
+        chrome.tabs.query(queryOptions, ([tab]) => {
+            if (!tab || !tab.url) {
+                resolve(null);
+                return;
+            }
+            resolve(tab.url);
+        });
+    });
+}
+
+*/
+
+async function getAllCurrentTabs() {
+    let queryOptions = {highlighted: true};
+    // `tab` will either be a `tabs.Tab` instance or `undefined`.
+    let y = []
+    return new Promise((resolve) => {
+        chrome.tabs.query(queryOptions, (tabs) => {
+        for(const i in tabs){
+            y.push(tabs[i].url)
+        }
+        console.log(y)
+        resolve(y)
+    })
+    })
+    
 }
 async function getCurrentTab() {
     let queryOptions = {active: true, lastFocusedWindow: true};
@@ -44,7 +75,7 @@ let timerRunning = false;
 // Helper to wrap your callback-style query in a Promise
 function getCurrentTabURL() {
     return new Promise((resolve) => {
-        let queryOptions = { active: true, lastFocusedWindow: true };
+        let queryOptions = {active: true};
         chrome.tabs.query(queryOptions, ([tab]) => {
             if (!tab || !tab.url) {
                 resolve(null);
@@ -57,12 +88,14 @@ function getCurrentTabURL() {
 
 // Timer update function
 async function updateTimer() {
-    const url = await getCurrentTabURL();
+    const url = await getAllCurrentTabs();
+    console.log(url)
     if (!url) return;
 
     const blockedSites = ["youtube.com", "instagram.com"];
-    const isBlocked = blockedSites.some(site => url.includes(site));
-
+    const isBlocked = url.some(url =>
+    blockedSites.some(site => url.includes(site)) //black box, works, return bool
+    );
     const now = Date.now();
     if (!previousTime) {
         previousTime = now;
@@ -71,11 +104,30 @@ async function updateTimer() {
     }
 
     const delta = (now - previousTime) / 1000; // seconds
+    console.log("delta "+delta)
     previousTime = now;
 
     if (!isBlocked) {
         totalTime += delta;
         timerRunning = true;
+        let coins = 0
+        chrome.storage.local.get(["coins"]).then((result) => {
+        coins = result.coins
+        console.log("total coins "+result.coins)
+        if (coins === undefined){
+            console.log("coins is now undefined")
+            coins = 0
+        }
+
+         console.log("Value is " + coins);
+        coins += delta/10;
+        console.log("Value after flooring " + coins);
+        chrome.storage.local.set({"coins" : coins}).then(() => {
+            console.log(`Coins updated: ${coins}`);
+        });
+        });
+        
+       
     } else {
         timerRunning = false;
     }
