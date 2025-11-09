@@ -33,7 +33,7 @@ canvas.className = "tamataski_canvas"
 
 
 const imageSize = 32
-const scaledImageSize = 80;
+let scaledImageSize = 80;
 const spritesWidth = 11
 const spritesHeight = 53
 
@@ -169,11 +169,12 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
         if (val == "sad"){
             currentPetState = 3
             petStates[currentPetState].set()
+            scaledImageSize = 200
 
         }else{
             currentPetState = 1
             petStates[currentPetState].set()
-
+            scaledImageSize = 80
         }
         console.log('petMood', val)
     }
