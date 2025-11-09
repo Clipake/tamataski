@@ -1,7 +1,3 @@
-chrome.storage.local.set({"coins" : coins}).then(() => {
-    console.log(`Coins updated: ${coins}`);
-});
-
 
 
 async function getCoins() {
@@ -26,16 +22,19 @@ async function buyItem(cost) {
     }
 }
 
-
-await chrome.storage.local.set({ coins: 100 });
-
-
-const currentCoins = await getCoins();
-console.log("Current coins:", currentCoins);
+testBuy()
+async function testBuy() {
+    const before = await getCoins();
+    console.log("Current coins:", before);
 
 
-const success = await buyItem(30);
-console.log("Purchase result:", success);
+    const success = await buyItem(30);
+    console.log("Purchase result:", success);
 
 
-console.log("Coins after purchase:", await getCoins());
+    const after = await getCoins();
+    console.log("Coins after purchase:", after);
+}
+
+
+

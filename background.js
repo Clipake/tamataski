@@ -1,3 +1,4 @@
+
 setInterval(getAllCurrentTabs, 500)
 setInterval(updateTimer, 1000);
 console.log("if you didn't see this line, the program didn't work oh no")
