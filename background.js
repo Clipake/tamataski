@@ -26,7 +26,6 @@ function getCurrentTabURL() {
         });
     });
 }
-
 */
 
 async function getAllCurrentTabs() {
@@ -68,6 +67,7 @@ async function getCurrentTab() {
 //== loose equality
 
 // Timer globals
+let totalFocusTime = 0;
 let totalTime = 0;
 let previousTime = null;
 let timerRunning = false;
@@ -105,10 +105,30 @@ async function updateTimer() {
 
     const delta = (now - previousTime) / 1000; // seconds
     console.log("delta "+delta)
-    previousTime = now;
+    previousTime = now
+    totalTime += delta
+    //adds time to storage
+    chrome.storage.local.get(["totalTime"]).then((result) => {
+        let serverTotalTime = 0
+        result.totalTime === undefined ? serverTotalTime = result.totalTime : serverTotalTime = 0
+        serverTotalTime += + delta
+        chrome.storage.local.set({"totalFocusTime" : serverTotalTime}).then(() => {
+            console.log("updated total time to: " + totalTime)
+        });
+    });
 
+
+    //adds coins and totalFocusTime to storage
     if (!isBlocked) {
-        totalTime += delta;
+        chrome.storage.local.get(["totalFocusTime"]).then((result) => {
+            let serverTotalFocusTime
+            result.totalFocusTime === undefined ? serverTotalFocusTime = result.totalFocusTime : serverTotalFocusTime = 0
+            serverTotalFocusTime += delta
+            chrome.storage.local.set({"totalFocusTime" : serverTotalFocusTime}).then(() => {
+                console.log("updated total focus time to: " + totalFocusTime)
+            });
+        });
+        totalFocusTime += delta;
         timerRunning = true;
         let coins = 0
         chrome.storage.local.get(["coins"]).then((result) => {
@@ -130,9 +150,10 @@ async function updateTimer() {
        
     } else {
         timerRunning = false;
+
     }
 
     console.log(`Current tab: ${url}`);
-    console.log(`Total active time: ${Math.floor(totalTime)}s`);
+    //console.log(`Total active time: ${Math.floor(totalFocusTime)}s`);
     console.log(`Timer running: ${timerRunning}`);
 }
