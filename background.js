@@ -213,10 +213,9 @@ const petStateLoop = function(){
 
     chrome.tabs.query({}, function(tabs){
         for (let i = 0; i < tabs.length; i ++){
-            chrome.tabs.sendMessage(tabs[i].id, {currentPetState: currentPetState, petPosition: petPosition})
+            chrome.tabs.sendMessage(tabs[i].id, {currentPetState: currentPetState, petPosition: petPosition, petVelocity: petVelocity})
         }
     })
-    console.log(currentPetState)
 
     //console.log("petpos" + petPosition)
     //chrome.storage.local.set({"currentPetState": currentPetState, "petPosition": petPosition})
@@ -232,7 +231,7 @@ let scaledImageSize = 80
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse){
     canvas_width = request.canvas_width
     scaledImageSize = request.scaledImageSize
-    sendResponse({currentPetState: currentPetState, petPosition: petPosition})
+    sendResponse({currentPetState: currentPetState, petPosition: petPosition, petVelocity: petVelocity})
 })
 
 

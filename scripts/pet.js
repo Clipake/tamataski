@@ -100,7 +100,7 @@ const petStateEnum = {
 const response = chrome.runtime.sendMessage({canvas_width: canvas.width, scaledImageSize: scaledImageSize});
 currentPetState = response.currentPetState | 0
 petPosition = response.petPosition | 0
-console.log(response);
+petVelocity = response.petVelocity | 0
 
 
 image.onload = function(){
@@ -136,24 +136,11 @@ image.onload = function(){
     chrome.runtime.onMessage.addListener(function(message){
         currentPetState = message.currentPetState
         petPosition = message.petPosition
-        console.log("currentpetstate", message.currentPetState)
+        petVelocity = message.petVelocity
+        
         petStates[message.currentPetState].set()
     })
 
-    const doLoop = function(){
-        currentPetState = randomNumBetween(0, Object.keys(petStateEnum).length)
-        petStates[currentPetState].set()
-        console.log(currentPetState)
-
-        console.log("petpos" + petPosition)
-        chrome.storage.local.set({"currentPetState": currentPetState, "petPosition": petPosition})
-        
-
-        let timeout = (Math.floor(Math.random(Date.getTime()) * 5) + 2)*1000 //0-3 seconds
-        setTimeout(doLoop, timeout)
-    }
-
-    //doLoop();
 
     
 }
