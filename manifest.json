@@ -21,6 +21,11 @@
       "js": ["scripts/pet.js"],
       "css": ["assets/style.css"],
       "matches": ["*://*/*"]
+    },
+    {
+      "js": ["shop/shop.js"],
+      "css": ["shop/shop.css"],
+      "matches": ["*://*/*"]
     }
   ],
 
