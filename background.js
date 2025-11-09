@@ -87,6 +87,19 @@ function getCurrentTabURL() {
     });
 }
 
+
+let currentPetState = 0
+let petPosition = 0
+let petVelocity = 0 
+
+let prevMood = "happy"
+const petStateEnum = {
+        "Idle": 0,
+        "Walk": 1,
+        "Sleep": 2,
+        "Sad": 3
+} 
+
 //updates to google storage the following: time, coin, pet mood
 async function updateTimer() {
     const url = await getAllCurrentTabs();
@@ -157,8 +170,22 @@ async function updateTimer() {
         petMood = "sad"
     }
     //set cat mood
+
+    
     chrome.storage.local.set({"petMood" : petMood}).then(() => {
-        console.log("updated total time to: " + petMood)
+        console.log("updated mood time to: " + petMood)
+        
+        if (prevMood != petMood){
+            if (petMood == "sad"){
+                console.log("NOW SAD")
+                currentPetState = 3
+            }else{
+                console.log("NOW NEUTRAL")
+                currentPetState = 1
+            }
+        }
+        
+        prevMood = petMood
     });
 
     console.log(`Current tab: ${url}`);
@@ -168,14 +195,6 @@ async function updateTimer() {
 
 
 
-let currentPetState = 0
-let petPosition = 0
-let petVelocity =0 
-const petStateEnum = {
-        "Idle": 0,
-        "Walk": 1,
-        "Sleep": 2,
-} 
 const randomNumBetween = function(from, to){
     const between = to - from
     return Math.floor(Math.random() * between) - Math.abs(from)
@@ -203,25 +222,32 @@ const petStates = [
         set: function(){
         },
         run: function(){}
+    },
+
+    {
+        set: function(){},
+        run: function(){}
     }
 ]
 
 
 const petStateLoop = function(){
-    currentPetState = randomNumBetween(0, Object.keys(petStateEnum).length)
-    petStates[currentPetState].set()
+    if (currentPetState != 3){
+        currentPetState = randomNumBetween(0, Object.keys(petStateEnum).length-1)
+        petStates[currentPetState].set()
 
-    chrome.tabs.query({}, function(tabs){
-        for (let i = 0; i < tabs.length; i ++){
-            chrome.tabs.sendMessage(tabs[i].id, {currentPetState: currentPetState, petPosition: petPosition, petVelocity: petVelocity})
-        }
-    })
+        chrome.tabs.query({}, function(tabs){
+            for (let i = 0; i < tabs.length; i ++){
+                chrome.tabs.sendMessage(tabs[i].id, {currentPetState: currentPetState, petPosition: petPosition, petVelocity: petVelocity, petMood: petMood})
+            }
+        })
 
-    //console.log("petpos" + petPosition)
-    //chrome.storage.local.set({"currentPetState": currentPetState, "petPosition": petPosition})
+        console.log("petpos" + petPosition)
+        //chrome.storage.local.set({"currentPetState": currentPetState, "petPosition": petPosition})
 
-    let timeout = (Math.floor(Math.random() * 5) + 2)*1000 //0-3 seconds
-    setTimeout(petStateLoop, timeout)
+        let timeout = (Math.floor(Math.random() * 5) + 2)*1000 //0-3 seconds
+        setTimeout(petStateLoop, timeout)
+    }
 }
 petStateLoop();
 
@@ -231,7 +257,7 @@ let scaledImageSize = 80
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse){
     canvas_width = request.canvas_width
     scaledImageSize = request.scaledImageSize
-    sendResponse({currentPetState: currentPetState, petPosition: petPosition, petVelocity: petVelocity})
+    sendResponse({currentPetState: currentPetState, petPosition: petPosition, petVelocity: petVelocity, petMood: petMood})
 })
 
 

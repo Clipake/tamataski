@@ -54,6 +54,7 @@ const walk_right = [66, 73]
 const walk_left = [77, 84]
 const sit_front = [0, 0]
 const sleep = [176, 177]
+const sad = [451, 452]
 
 let currentPetState = 0;
 let petVelocity = 0;
@@ -87,6 +88,13 @@ const petStates = [
             setAnimation(sleep)
         },
         run: function(){}
+    },
+
+    {
+        set: function(){
+            setAnimation(sad)
+        },
+        run: function(){}
     }
 ]
 
@@ -94,6 +102,7 @@ const petStateEnum = {
     "Idle": 0,
     "Walk": 1,
     "Sleep": 2,
+    "Sad": 3
 }   
 
 
@@ -101,7 +110,11 @@ const response = chrome.runtime.sendMessage({canvas_width: canvas.width, scaledI
 currentPetState = response.currentPetState | 0
 petPosition = response.petPosition | 0
 petVelocity = response.petVelocity | 0
-
+if (response.petMood == "sad"){
+    currentPetState = 3
+}else{
+    currentPetState = 1
+}
 
 image.onload = function(){
     currentAnimation = walk_right
@@ -137,13 +150,32 @@ image.onload = function(){
         currentPetState = message.currentPetState
         petPosition = message.petPosition
         petVelocity = message.petVelocity
-        
+        if (response.petMood == "sad"){
+            currentPetState = 3
+        }else{
+            currentPetState = 1
+        }
         petStates[message.currentPetState].set()
+        console.log("state", currentPetState)
+        console.log('mood', message.petMood)
     })
 
 
     
 }
+
+chrome.storage.onChanged.addListener((changes, namespace) => {
+    for (let [key, {oldVal, newVal}] of Object.entries(changes)){
+        if (key == "petMood"){
+            if (newVal == "sad"){
+                currentPetState = 3
+            }else{
+                currentPetState = 1
+            }
+            console.log("petmood", newVal)
+        }
+    }
+})
 //loop();
 
 
