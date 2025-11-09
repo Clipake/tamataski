@@ -71,7 +71,7 @@ let totalFocusTime = 0;
 let totalTime = 0;
 let previousTime = null;
 let timerRunning = false;
-
+let petMood = "happy"
 // Helper to wrap your callback-style query in a Promise
 function getCurrentTabURL() {
     return new Promise((resolve) => {
@@ -86,7 +86,7 @@ function getCurrentTabURL() {
     });
 }
 
-// Timer update function
+//updates to google storage the following: time, coin, pet mood
 async function updateTimer() {
     const url = await getAllCurrentTabs();
     console.log(url)
@@ -120,6 +120,9 @@ async function updateTimer() {
 
     //adds coins and totalFocusTime to storage
     if (!isBlocked) {
+        //set cat mood
+        petMood = "happy"
+        //set focus time
         chrome.storage.local.get(["totalFocusTime"]).then((result) => {
             let serverTotalFocusTime
             result.totalFocusTime === undefined ? serverTotalFocusTime = result.totalFocusTime : serverTotalFocusTime = 0
@@ -146,12 +149,16 @@ async function updateTimer() {
             console.log(`Coins updated: ${coins}`);
         });
         });
-        
+
        
     } else {
         timerRunning = false;
-
+        petMood = "sad"
     }
+    //set cat mood
+    chrome.storage.local.set({"petMood" : petMood}).then(() => {
+        console.log("updated total time to: " + petMood)
+    });
 
     console.log(`Current tab: ${url}`);
     //console.log(`Total active time: ${Math.floor(totalFocusTime)}s`);
