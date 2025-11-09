@@ -33,7 +33,7 @@ canvas.className = "tamataski_canvas"
 
 
 const imageSize = 32
-const scaledImageSize = 80;
+let scaledImageSize = 80;
 const spritesWidth = 11
 const spritesHeight = 53
 
@@ -54,6 +54,7 @@ const walk_right = [66, 73]
 const walk_left = [77, 84]
 const sit_front = [0, 0]
 const sleep = [176, 177]
+const sad = [451, 452]
 
 let currentPetState = 0;
 let petVelocity = 0;
@@ -67,6 +68,7 @@ const setAnimation = function(animation){
 const petStates = [
     {
         set: function(){
+            petVelocity = 0
             setAnimation(sit_front)
         },
         run: function(){}
@@ -85,6 +87,15 @@ const petStates = [
     {
         set: function(){
             setAnimation(sleep)
+            petVelocity = 0
+        },
+        run: function(){}
+    },
+
+    {
+        set: function(){
+            setAnimation(sad)
+            petVelocity = 0
         },
         run: function(){}
     }
@@ -94,13 +105,19 @@ const petStateEnum = {
     "Idle": 0,
     "Walk": 1,
     "Sleep": 2,
+    "Sad": 3
 }   
 
 
-const response = chrome.runtime.sendMessage({greeting: 'getState'});
-currentPetState = response.currentPetState
-console.log(response);
-
+const response = chrome.runtime.sendMessage({canvas_width: canvas.width, scaledImageSize: scaledImageSize});
+currentPetState = response.currentPetState | 0
+petPosition = response.petPosition | 0
+petVelocity = response.petVelocity | 0
+if (response.petMood == "sad"){
+    currentPetState = 3
+}else{
+    currentPetState = 1
+}
 
 image.onload = function(){
     currentAnimation = walk_right
@@ -134,27 +151,44 @@ image.onload = function(){
 
     chrome.runtime.onMessage.addListener(function(message){
         currentPetState = message.currentPetState
-        console.log("currentpetstate", message.currentPetState)
+        petPosition = message.petPosition
+        petVelocity = message.petVelocity
+        
         petStates[message.currentPetState].set()
+        console.log("state", currentPetState)
+        console.log('mood', message.petMood)
     })
 
-    const doLoop = function(){
-        currentPetState = randomNumBetween(0, Object.keys(petStateEnum).length)
-        petStates[currentPetState].set()
-        console.log(currentPetState)
-
-        console.log("petpos" + petPosition)
-        chrome.storage.local.set({"currentPetState": currentPetState, "petPosition": petPosition})
-        
-
-        let timeout = (Math.floor(Math.random(Date.getTime()) * 5) + 2)*1000 //0-3 seconds
-        setTimeout(doLoop, timeout)
-    }
-
-    //doLoop();
 
     
 }
+
+chrome.storage.onChanged.addListener((changes, namespace) => {
+    if (namespace == 'local' && changes.petMood?.newValue) {
+        const val = String(changes.petMood.newValue)
+        if (val == "sad"){
+            currentPetState = 3
+            petStates[currentPetState].set()
+            scaledImageSize = 200
+
+        }else{
+            currentPetState = 1
+            petStates[currentPetState].set()
+            scaledImageSize = 80
+        }
+        console.log('petMood', val)
+    }
+    // for (let [key, {oldVal, newVal}] of Object.entries(changes)){
+    //     if (key == "petMood"){
+    //         if (newVal == "sad"){
+    //             currentPetState = 3
+    //         }else{
+    //             currentPetState = 1
+    //         }
+    //         console.log("petmood", newVal)
+    //     }
+    // }
+})
 //loop();
 
 
