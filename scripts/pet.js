@@ -22,38 +22,7 @@ function renderPet(){
          return Math.floor(Math.random() * between) - Math.abs(from)
     }
 
-    
-    // let petPosition = 0
 
-    // const loop = async function(){
-    //     const spaceLeft = Math.min(15, petPosition-5)
-    //     const spaceRight = Math.min(15, 95-petPosition)
-    //     console.log({spaceLeft, spaceRight})
-        
-    //     const distance = randomNumBetween(-spaceLeft, spaceRight)
-    //     const movementTime = (Math.abs(distance)/speed)*1000
-    //     petPosition += distance
-    //     petPosition = Math.min(Math.max(petPosition, 5),  95)
-    //     console.log('position: ', petPosition)
-
-    //     const move = [
-    //         {transform: `translateX(${petPosition}vw)`}
-    //     ]
-    //     const timing = {
-    //         duration: movementTime,
-    //         iterations: 1,
-    //         fill: "forwards"
-    //     }
-    //     console.log('distance: ', distance)
-
-    //     animation = pet.animate(move, timing);
-    //     await animation.finished;
-    //     animation.commitStyles();
-    //     animation.cancel();
-    
-    //     let timeout = (Math.floor(Math.random() * 3) + 0)*1000 + movementTime //1-3+movement time seconds
-    //     setTimeout(loop, timeout)
-    // }
 
     const canvas = document.createElement("canvas")
     canvas.height = container.offsetHeight
@@ -119,7 +88,11 @@ function renderPet(){
     }   
 
 
-    
+    chrome.storage.local.get(["currentPetState", "petPosition"]).then((result) => {
+        currentPetState = result.currentPetState
+        petPosition = result.petPosition
+        console.log({currentPetState, petPosition})
+    })
     
     image.onload = function(){
         currentAnimation = walk_right
@@ -135,6 +108,8 @@ function renderPet(){
         
             frameX = (frameNumber+1)%11 - 1
             frameY = Math.floor((frameNumber+1)/11)
+
+            chrome.storage.local.set({"petPosition": petPosition})
         }, 200)
         
         const fastLoop = setInterval(async function(){
@@ -154,6 +129,9 @@ function renderPet(){
             currentPetState = randomNumBetween(0, Object.keys(petStateEnum).length)
             petStates[currentPetState].set()
             console.log(currentPetState)
+            chrome.storage.local.set({"currentPetState": currentPetState})
+            
+
             let timeout = (Math.floor(Math.random() * 5) + 2)*1000 //0-3 seconds
             setTimeout(doLoop, timeout)
         }
