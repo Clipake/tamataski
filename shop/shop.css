@@ -17,7 +17,7 @@ body {
   /* 固定大小或最小尺寸，保证 popup 展示正常 */
   width: 340px;
   min-width: 340px;
-  min-height: 420px;
+  min-height: 280px;
 
   /* 原有样式保留 */
   background: #F7D5A0;
