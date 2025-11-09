@@ -75,10 +75,10 @@ header h2 {
 
 /* ==== Currency Display Bar ===== */
 
-.currency-display {
+.coins-display {
   text-align: center;
   padding-top: 1px;
-  line-height: 1.5;
+  line-height: 1.6;
 
   width: 98%; 
   margin: 5px auto 12px; 
@@ -91,7 +91,7 @@ header h2 {
     inset 0 2px 0 #724D39;
 }
 
-.currency-amount {
+.coins-amount {
   font-family: "Press Start 2P", monospace;
   font-size: 11px;
   color: #4a2b13;
@@ -168,13 +168,37 @@ header h2 {
   margin-bottom: 8px;
 }
 
-.pet {
+.pet-bg {
   width: 96px;
   height: 96px;
   border-radius: 4px;
-  image-rendering: pixelated;
-  background: #d2b6a2;
+  background: #d6af8d;
+
+position: relative; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  overflow: hidden;
 }
+
+#pet-canvas {
+  image-rendering: pixelated;
+  background-color: transparent;
+  width: 96px;
+  height: 96px;
+}
+
+.pet {
+  width: 96px;
+  height: 96px;
+ 
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 
 .arrow {
     font-family: "Press Start 2P", monospace;
@@ -200,13 +224,13 @@ header h2 {
 /* ===== price bar =====*/
 .item-price-bar {
     width: 80px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+
+    text-align: center;
+    line-height: 0.6em;
 
     background: #facb8f;
     border: 2px solid #a9774e;
-    border-radius: 2px;
+    border-radius: 4px;
     padding: 6px 8px;
 
     margin: 0 auto 5px; 
@@ -245,4 +269,45 @@ header h2 {
   box-shadow:
     inset 0 -1px 0 #a46c47,
     inset 0 2px 0 #875a39;
+}
+
+
+/* ===== Not Enough Coins 漂浮提示 ===== */
+.not-enough-float {
+  position: absolute;
+  bottom: -35px; /* 出现在 Buy 按钮上方，可微调 60~100px */
+  left: 50%;
+  transform: translateX(-50%);
+  color: #ff3b3b;
+  font-family: "Press Start 2P", monospace;
+  font-size: 10px;
+  white-space: nowrap; /* 不换行 */
+  text-shadow: 0 2px #7a1a1a, 0 0 2px #3a0000;
+  opacity: 0;
+  z-index: 20;
+  pointer-events: none;
+}
+
+@keyframes floatUp {
+  0% {
+    transform: translate(-50%, 10px);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -25px);
+    opacity: 0;
+  }
+}
+
+/* ===== Sprite 显示区域 ===== */
+#pet-sprite {
+  width: 32px;
+  height: 48px;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  background-size: contain;
+  transform: scale(2);
+  transform-origin: center;
+  margin: 0 auto;
+  display: block;
 }

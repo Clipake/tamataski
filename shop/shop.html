@@ -16,8 +16,8 @@
       <button class="close-btn" onclick="window.closeShop()">X</button>
     </header>
 
-    <div class="currency-display">
-        <span class="currency-amount">$ 5,000</span>
+    <div class="coins-display">
+        <span class="coins-amount">$ 5,000</span>
     </div>
 
     <div class="content">
@@ -29,9 +29,11 @@
       <main class="main-panel">
         
         <div class="pet-display">
-          <button class="arrow left">◀</button>
-          <img src="../assets/smile_0.png" alt="pet" class="pet" />
-          <button class="arrow right">▶</button>
+            <button class="arrow left">◀</button>
+            <div class="pet-bg">
+                <div id="pet-sprite"></div>
+            </div>
+            <button class="arrow right">▶</button>
         </div>
 
         <div class="item-price-bar">
@@ -44,10 +46,13 @@
     </div>
   </div>
 
+  <script src="./shop-test.js"></script>
+
   <script>
     window.closeShop = function () {
       parent.postMessage({ action: "closeShop" }, "*");
     };
   </script>
+
 </body>
 </html>
