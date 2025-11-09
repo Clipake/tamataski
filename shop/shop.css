@@ -9,10 +9,17 @@ body {
 
 /* ===== popup window ===== */
 .shop-window {
-  position: fixed;
-  top: 20px;
-  right: 200px;
+  /* 使用相对定位或静态，避免在 popup 小视口里被偏移出界 */
+  position: relative;
+  top: auto;
+  right: auto;
+
+  /* 固定大小或最小尺寸，保证 popup 展示正常 */
   width: 340px;
+  min-width: 340px;
+  min-height: 420px;
+
+  /* 原有样式保留 */
   background: #F7D5A0;
   border: 2px solid #926E55;
   border-radius: 6px;
@@ -21,6 +28,9 @@ body {
     inset 0 -2px 0 #724D39,
     0 3px 4px rgba(0, 0, 0, 0.25);
   padding: 15px 20px 20px 20px;
+
+  /* 可选：居中显示 */
+  margin: 8px;
 }
 
 /* ===== top header ===== */
