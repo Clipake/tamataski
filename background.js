@@ -164,3 +164,7 @@ async function updateTimer() {
     //console.log(`Total active time: ${Math.floor(totalFocusTime)}s`);
     console.log(`Timer running: ${timerRunning}`);
 }
+
+async function roaster(){
+
+}
