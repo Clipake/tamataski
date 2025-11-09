@@ -13,7 +13,7 @@
     "service_worker": "background.js"
   },
   "action": {
-    "default_icon": "assets/smile_0.png"
+    "default_icon": "assets/cat-idle.png"
   },
 
   "content_scripts": [
