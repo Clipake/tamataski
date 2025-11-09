@@ -169,7 +169,7 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
         if (val == "sad"){
             currentPetState = 3
             petStates[currentPetState].set()
-            scaledImageSize = 200
+            scaledImageSize = 400
 
         }else{
             currentPetState = 1

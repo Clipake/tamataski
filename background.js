@@ -178,7 +178,7 @@ async function updateTimer() {
             if (petMood == "sad"){
                 console.log("NOW SAD")
                 currentPetState = 3
-                scaledImageSize = 200
+                scaledImageSize = 400
             }else{
                 console.log("NOW NEUTRAL")
                 currentPetState = 1
