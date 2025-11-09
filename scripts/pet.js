@@ -97,8 +97,9 @@ const petStateEnum = {
 }   
 
 
-const response = chrome.runtime.sendMessage({greeting: 'getState'});
-currentPetState = response.currentPetState
+const response = chrome.runtime.sendMessage({canvas_width: canvas.width, scaledImageSize: scaledImageSize});
+currentPetState = response.currentPetState | 0
+petPosition = response.petPosition | 0
 console.log(response);
 
 
@@ -134,6 +135,7 @@ image.onload = function(){
 
     chrome.runtime.onMessage.addListener(function(message){
         currentPetState = message.currentPetState
+        petPosition = message.petPosition
         console.log("currentpetstate", message.currentPetState)
         petStates[message.currentPetState].set()
     })

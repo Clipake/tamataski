@@ -169,6 +169,8 @@ async function updateTimer() {
 
 
 let currentPetState = 0
+let petPosition = 0
+let petVelocity =0 
 const petStateEnum = {
         "Idle": 0,
         "Walk": 1,
@@ -179,27 +181,70 @@ const randomNumBetween = function(from, to){
     return Math.floor(Math.random() * between) - Math.abs(from)
 }
 
+
+
+const petStates = [
+    {
+        set: function(){
+        },
+        run: function(){}
+    },
+    {
+        set: function(){
+            petVelocity = Math.random() > 0.5 ? -1 : 1
+        },
+
+        run: function(){
+            petPosition += petVelocity
+        }
+    },
+
+    {
+        set: function(){
+        },
+        run: function(){}
+    }
+]
+
+
 const petStateLoop = function(){
     currentPetState = randomNumBetween(0, Object.keys(petStateEnum).length)
+    petStates[currentPetState].set()
+
     chrome.tabs.query({}, function(tabs){
         for (let i = 0; i < tabs.length; i ++){
-            chrome.tabs.sendMessage(tabs[i].id, {currentPetState: currentPetState})
+            chrome.tabs.sendMessage(tabs[i].id, {currentPetState: currentPetState, petPosition: petPosition})
         }
     })
     console.log(currentPetState)
 
     //console.log("petpos" + petPosition)
     //chrome.storage.local.set({"currentPetState": currentPetState, "petPosition": petPosition})
-            
 
     let timeout = (Math.floor(Math.random() * 5) + 2)*1000 //0-3 seconds
     setTimeout(petStateLoop, timeout)
 }
 petStateLoop();
 
+
+let canvas_width = 100
+let scaledImageSize = 80
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse){
-    sendResponse({currentPetState: currentPetState})
+    canvas_width = request.canvas_width
+    scaledImageSize = request.scaledImageSize
+    sendResponse({currentPetState: currentPetState, petPosition: petPosition})
 })
+
+
+ 
+const fastLoop = setInterval(async function(){
+    petStates[currentPetState].run()
+
+    if (petPosition < 0 ||  petPosition > canvas_width-scaledImageSize){
+        petVelocity = -petVelocity
+    }
+
+}, 30)
 
 async function roaster(){
 
