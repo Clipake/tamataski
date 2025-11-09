@@ -1,207 +1,168 @@
-
-setInterval(getAllCurrentTabs, 500)
+setInterval(getAllCurrentTabs, 500);
 setInterval(updateTimer, 1000);
-console.log("if you didn't see this line, the program didn't work oh no")
-/*
-async function getAllCurrentTabs() {
-    let queryOptions = {highlighted: true};
-    // `tab` will either be a `tabs.Tab` instance or `undefined`.
-    let y = ''
-    chrome.tabs.query(queryOptions, (tabs) => {
-        for(const i in tabs){
-            y += tabs[i].url + "\n"
+console.log("background service worker starting");
+
+// 安装 / 点击 事件
+chrome.runtime.onInstalled.addListener(() => {
+  console.log("TamaTaski extension installed");
+});
+chrome.action.onClicked.addListener(() => {
+  chrome.action.openPopup();
+});
+
+// Safe sendMessage：避免未处理的 promise rejection / lastError
+function sendMessageSafe(tabId, message) {
+  return new Promise((resolve) => {
+    try {
+      chrome.tabs.sendMessage(tabId, message, (response) => {
+        const err = chrome.runtime.lastError;
+        if (err) {
+          console.warn('sendMessage failed for tab', tabId, err.message);
+          resolve(null);
+          return;
         }
-        console.log(y)
-    })
+        resolve(response);
+      });
+    } catch (e) {
+      console.warn('sendMessage exception', e);
+      resolve(null);
+    }
+  });
 }
 
-function getCurrentTabURL() {
-    return new Promise((resolve) => {
-        let queryOptions = {active: true};
-        chrome.tabs.query(queryOptions, ([tab]) => {
-            if (!tab || !tab.url) {
-                resolve(null);
-                return;
-            }
-            resolve(tab.url);
-        });
-    });
-}
-*/
-
-async function getAllCurrentTabs() {
-    let queryOptions = {highlighted: true};
-    // `tab` will either be a `tabs.Tab` instance or `undefined`.
-    let y = []
-    return new Promise((resolve) => {
-        chrome.tabs.query(queryOptions, (tabs) => {
-        for(const i in tabs){
-            y.push(tabs[i].url)
-        }
-        console.log(y)
-        resolve(y)
-    })
-    })
-    
-}
-async function getCurrentTab() {
-    let queryOptions = {active: true, lastFocusedWindow: true};
-    // `tab` will either be a `tabs.Tab` instance or `undefined`.
-    chrome.tabs.query(queryOptions, ([tab]) => {
-            if (!tab) {
-            console.warn('No active tab found. Are you on the console perchance???');
-            return;
-        }
-        console.log(tab.url)
-    })
-
-    //if anyone DELETES DELETES this documentation below, I will NOT NOT be HAPPY
-    //this is a callback function
-    //chrome.tabs.query takes in queryOptions as a variable and returns the value as tabs
-    //the second parameter is a lambda [function] that uses tabs (returned from the function running with 1st parameter)
-    //hence, the second parameter is a function that runs after function finishes with the actual input (1st parameter)
-    //we MUST MUST MUST do this because otherwise JS might try return tabs.url BEFORE the query is actually complete
-        //lambda inside the function MAKES MAKES MAKES sure that we KNOW what tabs is before returning it
-}
-
-//= is assignment
-//== loose equality
-
-// Timer globals
+// Timer & pet 状态全域变量（一次声明，供后面使用）
 let totalFocusTime = 0;
 let totalTime = 0;
 let previousTime = null;
 let timerRunning = false;
-let petMood = "happy"
-// Helper to wrap your callback-style query in a Promise
-function getCurrentTabURL() {
-    return new Promise((resolve) => {
-        let queryOptions = {active: true};
-        chrome.tabs.query(queryOptions, ([tab]) => {
-            if (!tab || !tab.url) {
-                resolve(null);
-                return;
-            }
-            resolve(tab.url);
-        });
-    });
-}
+let petMood = "happy";
 
-//updates to google storage the following: time, coin, pet mood
-async function updateTimer() {
-    const url = await getAllCurrentTabs();
-    console.log(url)
-    if (!url) return;
+let currentPetState = 0;
+const petStateEnum = { Idle: 0, Walk: 1, Sleep: 2 };
 
-    const blockedSites = ["youtube.com", "instagram.com"];
-    const isBlocked = url.some(url =>
-    blockedSites.some(site => url.includes(site)) //black box, works, return bool
-    );
-    const now = Date.now();
-    if (!previousTime) {
-        previousTime = now;
-        console.log("no url detected")
-        return;
+const randomNumBetween = function (from, to) {
+  // 返回 [from, to) 的整数
+  return Math.floor(Math.random() * (to - from)) + from;
+};
+
+// petStateLoop：只向可注入的页面发送消息（过滤 chrome:// 等）
+const petStateLoop = function () {
+  currentPetState = randomNumBetween(0, Object.keys(petStateEnum).length);
+  chrome.tabs.query({}, function (tabs) {
+    for (let i = 0; i < tabs.length; i++) {
+      const tab = tabs[i];
+      if (!tab || !tab.id || !tab.url) continue;
+      const url = tab.url;
+      if (!(url.startsWith('http://') || url.startsWith('https://'))) continue;
+      // 使用 safe wrapper，避免未处理的异常
+      sendMessageSafe(tab.id, { currentPetState }).then(() => { /* optional */ });
     }
-
-    const delta = (now - previousTime) / 1000; // seconds
-    console.log("delta "+delta)
-    previousTime = now
-    totalTime += delta
-    //adds time to storage
-    chrome.storage.local.get(["totalTime"]).then((result) => {
-        let serverTotalTime = 0
-        result.totalTime === undefined ? serverTotalTime = result.totalTime : serverTotalTime = 0
-        serverTotalTime += + delta
-        chrome.storage.local.set({"totalFocusTime" : serverTotalTime}).then(() => {
-            console.log("updated total time to: " + totalTime)
-        });
-    });
-
-
-    //adds coins and totalFocusTime to storage
-    if (!isBlocked) {
-        //set cat mood
-        petMood = "happy"
-        //set focus time
-        chrome.storage.local.get(["totalFocusTime"]).then((result) => {
-            let serverTotalFocusTime
-            result.totalFocusTime === undefined ? serverTotalFocusTime = result.totalFocusTime : serverTotalFocusTime = 0
-            serverTotalFocusTime += delta
-            chrome.storage.local.set({"totalFocusTime" : serverTotalFocusTime}).then(() => {
-                console.log("updated total focus time to: " + totalFocusTime)
-            });
-        });
-        totalFocusTime += delta;
-        timerRunning = true;
-        let coins = 0
-        chrome.storage.local.get(["coins"]).then((result) => {
-        coins = result.coins
-        console.log("total coins "+result.coins)
-        if (coins === undefined){
-            console.log("coins is now undefined")
-            coins = 0
-        }
-
-         console.log("Value is " + coins);
-        coins += delta/10;
-        console.log("Value after flooring " + coins);
-        chrome.storage.local.set({"coins" : coins}).then(() => {
-            console.log(`Coins updated: ${coins}`);
-        });
-        });
-
-       
-    } else {
-        timerRunning = false;
-        petMood = "sad"
-    }
-    //set cat mood
-    chrome.storage.local.set({"petMood" : petMood}).then(() => {
-        console.log("updated total time to: " + petMood)
-    });
-
-    console.log(`Current tab: ${url}`);
-    //console.log(`Total active time: ${Math.floor(totalFocusTime)}s`);
-    console.log(`Timer running: ${timerRunning}`);
-}
-
-
-
-let currentPetState = 0
-const petStateEnum = {
-        "Idle": 0,
-        "Walk": 1,
-        "Sleep": 2,
-} 
-const randomNumBetween = function(from, to){
-    const between = to - from
-    return Math.floor(Math.random() * between) - Math.abs(from)
-}
-
-const petStateLoop = function(){
-    currentPetState = randomNumBetween(0, Object.keys(petStateEnum).length)
-    chrome.tabs.query({}, function(tabs){
-        for (let i = 0; i < tabs.length; i ++){
-            chrome.tabs.sendMessage(tabs[i].id, {currentPetState: currentPetState})
-        }
-    })
-    console.log(currentPetState)
-
-    //console.log("petpos" + petPosition)
-    //chrome.storage.local.set({"currentPetState": currentPetState, "petPosition": petPosition})
-            
-
-    let timeout = (Math.floor(Math.random() * 5) + 2)*1000 //0-3 seconds
-    setTimeout(petStateLoop, timeout)
-}
+  });
+  console.log('pet state', currentPetState);
+  const timeout = (Math.floor(Math.random() * 5) + 2) * 1000;
+  setTimeout(petStateLoop, timeout);
+};
 petStateLoop();
 
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse){
-    sendResponse({currentPetState: currentPetState})
-})
+// 处理来自 popup 的注入请求（如果需要注入到当前活动 tab）
+chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
+  if (message && message.action === "injectShopScript") {
+    if (!chrome.scripting || !chrome.scripting.executeScript) {
+      console.error('scripting API not available');
+      sendResponse({ success: false, error: 'scripting API not available' });
+      return;
+    }
+    try {
+      const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+      const tab = tabs[0];
+      if (!tab || !tab.id) {
+        sendResponse({ success: false, error: 'no active tab' });
+        return;
+      }
+      await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        files: ['shop/shop.js']
+      });
+      sendResponse({ success: true });
+    } catch (err) {
+      console.error('inject error', err);
+      sendResponse({ success: false, error: err && err.message ? err.message : String(err) });
+    }
+    return true;
+  }
+});
 
-async function roaster(){
+// Helper: get all current tab urls (used by updateTimer)
+async function getAllCurrentTabs() {
+  const queryOptions = { highlighted: true };
+  return new Promise((resolve) => {
+    chrome.tabs.query(queryOptions, (tabs) => {
+      const urls = [];
+      for (const i in tabs) {
+        if (tabs[i] && tabs[i].url) urls.push(tabs[i].url);
+      }
+      // 返回数组（可能为空）
+      resolve(urls);
+    });
+  });
+}
 
+function getCurrentTabURL() {
+  return new Promise((resolve) => {
+    const queryOptions = { active: true };
+    chrome.tabs.query(queryOptions, ([tab]) => {
+      if (!tab || !tab.url) {
+        resolve(null);
+        return;
+      }
+      resolve(tab.url);
+    });
+  });
+}
+
+// 定时更新计时/金币状态（保留你原有逻辑并尽量稳健）
+async function updateTimer() {
+  const urls = await getAllCurrentTabs();
+  if (!urls) return;
+  const blockedSites = ["youtube.com", "instagram.com"];
+  const isBlocked = urls.some(u => blockedSites.some(site => u.includes(site)));
+  const now = Date.now();
+  if (!previousTime) {
+    previousTime = now;
+    return;
+  }
+  const delta = (now - previousTime) / 1000;
+  previousTime = now;
+  totalTime += delta;
+
+  // 更新 totalFocusTime、coins、petMood（保持你原逻辑，但更防护）
+  if (!isBlocked) {
+    petMood = "happy";
+    chrome.storage.local.get(["totalFocusTime"]).then((result) => {
+      let serverTotalFocusTime = (result && typeof result.totalFocusTime === 'number') ? result.totalFocusTime : 0;
+      serverTotalFocusTime += delta;
+      chrome.storage.local.set({ "totalFocusTime": serverTotalFocusTime }).then(() => {
+        console.log("updated total focus time to: " + serverTotalFocusTime);
+      });
+    });
+    timerRunning = true;
+    chrome.storage.local.get(["coins"]).then((result) => {
+      let coins = (result && typeof result.coins === 'number') ? result.coins : 0;
+      coins += delta / 10;
+      chrome.storage.local.set({ "coins": coins }).then(() => {
+        console.log(`Coins updated: ${coins}`);
+      });
+    });
+  } else {
+    timerRunning = false;
+    petMood = "sad";
+  }
+
+  chrome.storage.local.set({ "petMood": petMood }).then(() => {
+    console.log("updated petMood to: " + petMood);
+  });
+
+  console.log(`Current tabs: ${urls}`);
+  console.log(`Timer running: ${timerRunning}`);
 }
 

@@ -1,19 +1,32 @@
 {
   "manifest_version": 3,
-  "name": "tamataski",
+  "name": "TamaTaski",
   "version": "1.0",
-  "description": "",
+  "description": "Pet shop popup test",
 
   "permissions": [
     "activeTab",
     "storage",
-    "tabs"
+    "tabs",
+    "scripting"
   ],
-  "background" : {
+
+  "background": {
     "service_worker": "background.js"
   },
+
   "action": {
-    "default_icon": "assets/cat-idle.png"
+    "default_popup": "shop/shop.html",
+    "default_icon": {
+      "16": "assets/cat-idle.png",
+      "48": "assets/cat-idle.png",
+      "128": "assets/cat-idle.png"
+    }
+  },
+
+
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
   },
 
   "content_scripts": [
@@ -31,8 +44,8 @@
 
   "web_accessible_resources": [
     {
-      "resources": ["/assets/*"],
-      "matches": ["*://*/*"]
+      "resources": ["assets/*"],
+      "matches": ["<all_urls>"]
     }
   ]
 }
