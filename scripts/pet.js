@@ -68,6 +68,7 @@ const setAnimation = function(animation){
 const petStates = [
     {
         set: function(){
+            petVelocity = 0
             setAnimation(sit_front)
         },
         run: function(){}
@@ -86,6 +87,7 @@ const petStates = [
     {
         set: function(){
             setAnimation(sleep)
+            petVelocity = 0
         },
         run: function(){}
     },
@@ -93,6 +95,7 @@ const petStates = [
     {
         set: function(){
             setAnimation(sad)
+            petVelocity = 0
         },
         run: function(){}
     }
@@ -150,11 +153,7 @@ image.onload = function(){
         currentPetState = message.currentPetState
         petPosition = message.petPosition
         petVelocity = message.petVelocity
-        if (response.petMood == "sad"){
-            currentPetState = 3
-        }else{
-            currentPetState = 1
-        }
+        
         petStates[message.currentPetState].set()
         console.log("state", currentPetState)
         console.log('mood', message.petMood)
@@ -165,16 +164,29 @@ image.onload = function(){
 }
 
 chrome.storage.onChanged.addListener((changes, namespace) => {
-    for (let [key, {oldVal, newVal}] of Object.entries(changes)){
-        if (key == "petMood"){
-            if (newVal == "sad"){
-                currentPetState = 3
-            }else{
-                currentPetState = 1
-            }
-            console.log("petmood", newVal)
+    if (namespace == 'local' && changes.petMood?.newValue) {
+        const val = String(changes.petMood.newValue)
+        if (val == "sad"){
+            currentPetState = 3
+            petStates[currentPetState].set()
+
+        }else{
+            currentPetState = 1
+            petStates[currentPetState].set()
+
         }
+        console.log('petMood', val)
     }
+    // for (let [key, {oldVal, newVal}] of Object.entries(changes)){
+    //     if (key == "petMood"){
+    //         if (newVal == "sad"){
+    //             currentPetState = 3
+    //         }else{
+    //             currentPetState = 1
+    //         }
+    //         console.log("petmood", newVal)
+    //     }
+    // }
 })
 //loop();
 
